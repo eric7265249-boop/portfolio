@@ -1,0 +1,44 @@
+{
+  "pages": [
+    {
+      "path": "index.html",
+      "title": "主页"
+    },
+    {
+      "path": "work.html",
+      "title": "作品目录"
+    },
+    {
+      "path": "about.html",
+      "title": "个人介绍"
+    },
+    {
+      "path": "contact.html",
+      "title": "联系"
+    },
+    {
+      "path": "project-urban.html",
+      "title": "Urban Respite Initiative"
+    },
+    {
+      "path": "project-plastic.html",
+      "title": "Plastic Eternity"
+    },
+    {
+      "path": "project-azure.html",
+      "title": "Azure Clean"
+    },
+    {
+      "path": "project-armor.html",
+      "title": "The Armor of Form"
+    },
+    {
+      "path": "acid-lab.html",
+      "title": "酸性动态方案"
+    },
+    {
+      "path": "meteor-lab.html",
+      "title": "陨石环流方案"
+    }
+  ]
+}

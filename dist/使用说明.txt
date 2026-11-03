@@ -1,0 +1,18 @@
+Chao 可编辑作品集
+
+运行：python3 serve-editable.py --port 8765 --open
+（服务器脚本也位于 tools/serve-editable.py，可运行 python3 tools/serve-editable.py --directory . --port 8765 --open）
+
+浏览：http://localhost:8765/
+编辑：http://localhost:8765/editor.html
+动态方案：http://localhost:8765/acid-lab.html
+
+左侧选择页面；点选文字或图片，也可通过左侧清单定位。
+文字支持原位双击修改；右侧可调整字号、颜色、对齐与链接。
+图片支持上传替换、替代文本、包含或填充显示。
+在项目页点选模块中的内容，再使用右侧向上/向下调整同章节内模块顺序。
+“保存到网站”将内容写入 content-overrides.json，上传图片保存在 assets/uploads。
+“导出网站”下载包含页面、图片、修改内容和编辑服务的完整 ZIP。
+
+只有通过本地编辑服务启动，才能直接写入网站文件。纯静态托管的编辑器只能保存到当前浏览器，并通过导出 ZIP 带走修改。
+动态海报页的“暂选”只记录预览偏好，不会修改正式首页。

@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.log
+.env
+.env.*
+.openai/
+source-assets/
+scripts/
+node_modules/
+outputs/
+tmp/

@@ -1,0 +1,1 @@
+if('IntersectionObserver'in window&&!matchMedia('(prefers-reduced-motion:reduce)').matches){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');o.unobserve(e.target)}}),{threshold:.04});document.querySelectorAll('.cv-rows article').forEach(e=>{e.classList.add('reveal-ready');o.observe(e)})}

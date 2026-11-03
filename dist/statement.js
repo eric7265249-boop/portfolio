@@ -1,0 +1,1 @@
+document.querySelectorAll('[data-language]').forEach(b=>b.addEventListener('click',()=>{const s=b.closest('.artist-statement');s.querySelectorAll('[data-language]').forEach(a=>a.setAttribute('aria-pressed',String(a===b)));s.querySelectorAll('[data-statement]').forEach(p=>p.hidden=p.dataset.statement!==b.dataset.language)}));
