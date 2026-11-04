@@ -35,7 +35,17 @@ body.edition-bd.edition-light > header {
 .edition-bd header nav { gap: 32px; }
 .edition-bd header nav a,
 .edition-bd header nav a:last-child { font-size: 14px; line-height: 24px; letter-spacing: 0; padding: 12px 0; }
-.edition-bd .brand img[src*="chao-logo.svg"] { width: 96px !important; }
+body.edition-bd.edition-light .brand { display: inline-flex; align-items: center; flex-shrink: 0; line-height: 0; }
+body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] {
+  display: block;
+  width: 120px !important;
+  height: auto !important;
+  aspect-ratio: 554 / 172;
+  object-fit: contain;
+  flex-shrink: 0;
+  max-width: none;
+  transform: none;
+}
 body.edition-bd.edition-light.page-home > header { inset: 24px 4.5% auto; border: 0 !important; background: transparent !important; }
 .edition-bd :is(a,button):focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
 
@@ -206,7 +216,7 @@ body.d04-case .ed-figure .image-enlarge:hover > .ed-visual { transform: none !im
   body.edition-bd.edition-light > header { inset: 0 6% auto; height: 72px; padding: 0; }
   .edition-bd header nav { gap: 16px; }
   .edition-bd header nav a,.edition-bd header nav a:last-child { font-size: 12px; line-height: 20px; padding: 12px 0; }
-  .edition-bd .brand img[src*="chao-logo.svg"] { width: 72px !important; }
+  body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] { width: 88px !important; }
   .edition-bd .page-masthead,.edition-bd.page-work .page-masthead { display: block; padding-top: 104px; padding-bottom: 32px; }
   .edition-bd .page-masthead .eyebrow { font-size: 11px; margin-bottom: 24px; }
   .edition-bd .page-masthead h1,.edition-bd.page-work .page-masthead h1 { font-size: clamp(56px,15vw,88px); line-height: 1; letter-spacing: -.04em; margin: 0 0 24px; }
