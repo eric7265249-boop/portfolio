@@ -15,15 +15,20 @@
  const animate=(el,frames,options)=>el.animate(frames,{fill:'both',easing:'cubic-bezier(.22,1,.36,1)',...options});
  const clean=()=>{document.querySelectorAll('.chao-transition').forEach(e=>e.remove());root.classList.remove('chao-arrival','chao-handoff-active');document.body?.classList.remove('chao-navigating');busy=false;overlay=null};
  const warmed=new Set(),resources=new Set();
- const prefetch=(href,as)=>{if(resources.has(href))return;resources.add(href);const link=document.createElement('link');link.rel=as==='image'?'preload':'prefetch';if(as)link.as=as;link.href=href;if(as==='image')link.fetchPriority='low';document.head.append(link)};
- const warm=e=>{if(editing())return;const a=e.target.closest('a[href]');if(!a)return;const u=new URL(a.href,location.href);u.searchParams.set('build','20261103-entry4');if(u.origin!==location.origin||u.pathname===location.pathname||!/(?:\/work|\/project-(?:urban|plastic|azure|armor))\.html$/.test(u.pathname)||warmed.has(u.href))return;warmed.add(u.href);
-  fetch(u.href,{credentials:'same-origin',cache:'force-cache'}).then(r=>r.ok?r.text():'').then(text=>{if(!text)return;const doc=new DOMParser().parseFromString(text,'text/html'),cover=doc.querySelector('.case-cover img');if(cover)prefetch(new URL(cover.getAttribute('src'),u).href,'image');doc.querySelectorAll('link[rel=stylesheet][href],script[src]').forEach(el=>prefetch(new URL(el.getAttribute('href')||el.getAttribute('src'),u).href))}).catch(()=>{});
+ const constrained=()=>navigator.connection?.saveData||/2g/.test(navigator.connection?.effectiveType||'');
+ const prefetch=(href,as,source)=>{if(resources.has(href))return;resources.add(href);const link=document.createElement('link');link.rel=as==='image'?'preload':'prefetch';if(as)link.as=as;link.href=href;if(as==='image'){link.fetchPriority='low';if(source?.getAttribute('srcset')){link.imageSrcset=source.getAttribute('srcset');link.imageSizes=source.getAttribute('sizes')||'100vw'}}document.head.append(link)};
+ const warm=e=>{if(editing()||constrained())return;const a=e.target.closest('a[href]');if(!a)return;const u=new URL(a.href,location.href);u.searchParams.set('build','20261104-craft1');if(u.origin!==location.origin||u.pathname===location.pathname||!/(?:\/work|\/project-(?:urban|plastic|azure|armor))\.html$/.test(u.pathname)||warmed.has(u.href))return;warmed.add(u.href);
+  fetch(u.href,{credentials:'same-origin',cache:'force-cache'}).then(r=>r.ok?r.text():'').then(text=>{if(!text)return;const doc=new DOMParser().parseFromString(text,'text/html'),cover=doc.querySelector('.case-cover img');if(cover)prefetch(new URL(cover.getAttribute('src'),u).href,'image',cover);doc.querySelectorAll('link[rel=stylesheet][href],script[src]').forEach(el=>prefetch(new URL(el.getAttribute('href')||el.getAttribute('src'),u).href))}).catch(()=>{});
  };
- document.addEventListener('pointerover',warm,{passive:true});document.addEventListener('focusin',warm);document.addEventListener('pointerdown',warm,{passive:true});
+ let warmTimer;
+ document.addEventListener('pointerover',e=>{if(e.pointerType==='touch')return;const a=e.target.closest('a[href]');if(!a||a.contains(e.relatedTarget))return;clearTimeout(warmTimer);warmTimer=setTimeout(()=>warm({target:a}),160)},{passive:true});
+ document.addEventListener('pointerout',e=>{const a=e.target.closest('a[href]');if(a&&!a.contains(e.relatedTarget))clearTimeout(warmTimer)},{passive:true});
+ document.addEventListener('focusin',warm);document.addEventListener('pointerdown',warm,{passive:true});
  document.addEventListener('click',e=>{
   if(!document.body||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||reduce.matches||editing())return;
   const a=e.target.closest('a[href]');if(!a||a.target||a.hasAttribute('download'))return;
-  const url=new URL(a.href,location.href);url.searchParams.set('build','20261103-entry4');if(url.origin!==location.origin||url.pathname===location.pathname||!/(?:\/work|\/project-(?:urban|plastic|azure|armor))\.html$/.test(url.pathname))return;
+  if(a.closest('.home-orbit')?.dataset.dragged==='true'){e.preventDefault();return}
+  const url=new URL(a.href,location.href);url.searchParams.set('build','20261104-craft1');if(url.origin!==location.origin||url.pathname===location.pathname||!/(?:\/work|\/project-(?:urban|plastic|azure|armor))\.html$/.test(url.pathname))return;
   e.preventDefault();e.stopImmediatePropagation();if(busy)return;busy=true;
   const kind=/\/work\.html$/.test(url.pathname)?'work':'project',card=a.matches('.home-orbit-card,.next-project')?a:a.closest('.project')||document.querySelector('.home-orbit-card[href="'+CSS.escape(a.getAttribute('href'))+'"]'),img=card?.querySelector('img');
   const data={kind,to:url.pathname,at:Date.now(),title:kind==='work'?'Selected work.':card?.dataset.title||(card?.querySelector('h2,h3')?.textContent||a.textContent).replace(/↗/g,'').trim(),src:kind==='project'&&img?img.currentSrc||img.src:null};

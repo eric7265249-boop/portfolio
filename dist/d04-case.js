@@ -19,7 +19,8 @@
   const slides=[...rail.children],toolbar=showcase.querySelector('.c06-gallery-toolbar'),dots=document.createElement('div');dots.className='d04-dots';dots.setAttribute('aria-label','项目图像分页');
   const stepButtons=[...toolbar.querySelectorAll('[data-c06-step]')];toolbar.insertBefore(dots,toolbar.querySelector('.c06-rail-controls'));
   let current=0,raf=0,previousY=scrollY,travel=0,dragging=false,dragX=0,dragLeft=0,didDrag=false;
-  const setSlide=index=>{current=clamp(index,0,slides.length-1);[...dots.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)));stepButtons.forEach(b=>b.disabled=Number(b.dataset.c06Step)<0?current===0:current===slides.length-1)};
+  let lastSlide=-1;
+  const setSlide=index=>{current=clamp(index,0,slides.length-1);if(current===lastSlide)return;lastSlide=current;[...dots.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)));stepButtons.forEach(b=>b.disabled=Number(b.dataset.c06Step)<0?current===0:current===slides.length-1)};
   const slideTo=index=>{index=clamp(index,0,slides.length-1);if(!mobile.matches&&!reduced.matches&&!editing()){
     const max=rail.scrollWidth-rail.clientWidth,target=slides[index].offsetLeft-slides[0].offsetLeft;
     window.scrollTo({top:showcase.getBoundingClientRect().top+scrollY+clamp(target/max)*travel,behavior:'smooth'});
@@ -53,8 +54,6 @@
    feature.addEventListener('keydown',e=>{if(e.target!==feature||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();goto(active+(e.key==='ArrowRight'?1:-1))});
    let startX=0,startLeft=0,drag=false,moved=false;feature.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button)return;drag=true;moved=false;startX=e.clientX;startLeft=feature.scrollLeft});feature.addEventListener('pointermove',e=>{if(!drag)return;const dx=startX-e.clientX;if(Math.abs(dx)>5)moved=true;if(moved)feature.scrollLeft=startLeft+dx});window.addEventListener('pointerup',()=>drag=false);feature.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopImmediatePropagation();moved=false}},{capture:true});refresh();
   }
-  const parallax=[...document.querySelectorAll('.reading-evidence>.ed-artifacts>.ed-figure:first-child,.reading-evidence>.ed-grid>.role-lead:first-child')].filter(e=>!e.closest('.ed-source-collage,.d04-phases'));
-  parallax.forEach(e=>e.classList.add('d04-parallax'));
   const reveals=[...document.querySelectorAll('.stage-heading h2,.ed-block-heading h3,.c06-story-prompt h2,.artist-statement h2,.next-project h2')];
   const media=[...document.querySelectorAll('.case-story .ed-figure')].filter(e=>!e.closest('.ed-source-collage,.d04-phases'));
   const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.remove('d04-pending');observer.unobserve(e.target)}}),{rootMargin:'0px 0px -25px 0px',threshold:0});
@@ -64,20 +63,27 @@
   const startsBelow=deferReveals?revealItems.map(e=>e.getBoundingClientRect().top>innerHeight):[];
   revealItems.forEach((e,i)=>{e.classList.add(revealSet.has(e)?'d04-mask':'d04-media-in');if(startsBelow[i]){e.classList.add('d04-pending');if(!revealSet.has(e))e.style.setProperty('--reveal-delay',(i%3)*65+'ms');observer.observe(e)}});
   document.querySelectorAll('.c06-read-story,footer .footer-top>a:last-child,header nav a').forEach(el=>{if(el.querySelector('img')||el.querySelector('.d04-roll-label')||el.children.length)return;const label=document.createElement('span'),echo=document.createElement('span');label.className='d04-roll-label';echo.className='d04-roll-echo';echo.setAttribute('aria-hidden','true');while(el.firstChild)label.append(el.firstChild);echo.textContent=label.textContent;el.classList.add('d04-roll');el.append(label,echo)});
-  const resize=()=>{travel=Math.max(innerHeight*1.8,Math.min(innerHeight*4.5,(rail.scrollWidth-rail.clientWidth)/1.65));showcase.style.setProperty('--showcase-height',travel+innerHeight+'px');schedule()};
-  const update=()=>{raf=0;const edit=editing();body.classList.toggle('d04-editing',!!edit);const h=innerHeight,y=scrollY,hr=hero.getBoundingClientRect(),p=reduced.matches||edit?0:clamp(-hr.top/(hero.offsetHeight-h));
+  let slideOffsets=[],railMax=0,lastHeroProgress=-1;
+  const resize=()=>{const first=slides[0].offsetLeft;slideOffsets=slides.map(s=>s.offsetLeft-first);railMax=Math.max(0,rail.scrollWidth-rail.clientWidth);travel=Math.max(innerHeight*1.8,Math.min(innerHeight*4.5,railMax/1.65));showcase.style.setProperty('--showcase-height',travel+innerHeight+'px');lastHeroProgress=-1;schedule()};
+  const update=()=>{raf=0;const edit=editing(),h=innerHeight,y=scrollY;
+   // Read the scroll geometry before touching styles. The previous loop wrote
+   // hero dimensions, then forced layout once for every slide and photograph.
+   const hr=hero.getBoundingClientRect(),heroHeight=hero.offsetHeight,r=showcase.getBoundingClientRect();
+   const p=reduced.matches||edit?0:clamp(-hr.top/Math.max(1,heroHeight-h));
+   const inShowcase=r.top<h&&r.bottom>0,progress=clamp(-r.top/travel),scrollTarget=progress*railMax;
+   const distances=inShowcase?slideOffsets.map(x=>Math.abs(x-scrollTarget)):[];
+   body.classList.toggle('d04-editing',!!edit);
    const expansion=clamp(p/.72),smooth=expansion*expansion*(3-2*expansion),startW=mobile.matches?68:42,startH=mobile.matches?48:58;
-   hero.style.setProperty('--hero-w',(startW+(100-startW)*smooth)+'vw');hero.style.setProperty('--hero-h',(startH+(100-startH)*smooth)+'svh');hero.style.setProperty('--hero-r',26*(1-smooth)+'px');
-   hero.style.setProperty('--hero-title-y',(-clamp((p-.5)/.45)*100)+'px');hero.style.setProperty('--hero-title-opacity',1-clamp((p-.56)/.25));hero.style.setProperty('--hero-scroll-opacity',1-clamp(p/.2));cue.tabIndex=p>.1?-1:0;
-   if(!mobile.matches&&!reduced.matches&&!edit){const r=showcase.getBoundingClientRect(),progress=clamp(-r.top/travel),max=rail.scrollWidth-rail.clientWidth;if(r.top<h&&r.bottom>0){rail.scrollLeft=progress*max;const target=rail.scrollLeft+slides[0].offsetLeft;let i=0,dist=Infinity;slides.forEach((s,n)=>{let d=Math.abs(s.offsetLeft-target);if(d<dist){dist=d;i=n}s.style.setProperty('--slide-y',Math.min(22,d/innerWidth*18)+'px')});setSlide(i)}}
-   if(!reduced.matches&&!mobile.matches&&!edit)for(const el of parallax){const r=el.getBoundingClientRect();if(r.top<h+100&&r.bottom>-100)el.style.setProperty('--parallax-y',clamp((h*.5-r.top-r.height*.5)*.045,-28,28)+'px')}
+   if(p!==lastHeroProgress){lastHeroProgress=p;hero.style.setProperty('--hero-w',(startW+(100-startW)*smooth)+'vw');hero.style.setProperty('--hero-h',(startH+(100-startH)*smooth)+'svh');hero.style.setProperty('--hero-r',26*(1-smooth)+'px');
+    hero.style.setProperty('--hero-title-y',(-clamp((p-.5)/.45)*100)+'px');hero.style.setProperty('--hero-title-opacity',1-clamp((p-.56)/.25));hero.style.setProperty('--hero-scroll-opacity',1-clamp(p/.2));cue.tabIndex=p>.1?-1:0;}
+   if(!mobile.matches&&!reduced.matches&&!edit&&inShowcase){rail.scrollLeft=scrollTarget;let i=0,dist=Infinity;slides.forEach((s,n)=>{const d=distances[n];if(d<dist){dist=d;i=n}s.style.setProperty('--slide-y',Math.min(22,d/innerWidth*18)+'px')});setSlide(i)}
    if(y>h*.3&&Math.abs(y-previousY)>3)body.classList.toggle('d04-reading-down',y>previousY&&!edit);if(y<h*.3||edit)body.classList.remove('d04-reading-down');previousY=y;
   };
   function schedule(){if(!raf)raf=requestAnimationFrame(update)}
   addEventListener('scroll',schedule,{passive:true});addEventListener('resize',resize);mobile.addEventListener('change',resize);reduced.addEventListener('change',()=>{if(reduced.matches)document.querySelectorAll('.d04-pending').forEach(e=>e.classList.remove('d04-pending'));resize()});
   document.querySelectorAll('.case-layout>aside a').forEach(a=>a.addEventListener('click',()=>body.classList.remove('d04-reading-down')));
   addEventListener('message',e=>{if(e.origin!==location.origin||e.data?.source!=='chao-editor')return;if(e.data.command==='mode'){body.classList.toggle('d04-editing',e.data.enabled!==false);document.querySelectorAll('.d04-pending').forEach(n=>n.classList.remove('d04-pending'));schedule()}});
-  resize();update();body.dataset.d04Ready='true';dispatchEvent(new Event('chao:case-ready'));
+  setSlide(0);resize();update();document.fonts?.ready.then(resize);body.dataset.d04Ready='true';dispatchEvent(new Event('chao:case-ready'));
  };
  const observe=new MutationObserver(()=>{start();if(initialized)observe.disconnect()});observe.observe(body,{attributes:true,attributeFilter:['class']});
  if(window.ChaoContent?.ready)window.ChaoContent.ready.then(start).catch(start);start();
