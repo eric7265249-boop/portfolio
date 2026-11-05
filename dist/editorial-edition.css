@@ -38,7 +38,7 @@ body.edition-bd.edition-light > header {
 body.edition-bd.edition-light .brand { display: inline-flex; align-items: center; flex-shrink: 0; min-height: 44px; line-height: 0; }
 body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] {
   display: block;
-  width: 120px !important;
+  width: 152px !important;
   height: auto !important;
   aspect-ratio: 554 / 172;
   object-fit: contain;
@@ -216,7 +216,7 @@ body.d04-case .ed-figure .image-enlarge:hover > .ed-visual { transform: none !im
   body.edition-bd.edition-light > header { inset: 0 6% auto; height: 72px; padding: 0; }
   .edition-bd header nav { gap: 16px; }
   .edition-bd header nav a,.edition-bd header nav a:last-child { font-size: 12px; line-height: 20px; padding: 12px 0; }
-  body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] { width: 88px !important; }
+  body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] { width: 104px !important; }
   .edition-bd .page-masthead,.edition-bd.page-work .page-masthead { display: block; padding-top: 104px; padding-bottom: 32px; }
   .edition-bd .page-masthead .eyebrow { font-size: 11px; margin-bottom: 24px; }
   .edition-bd .page-masthead h1,.edition-bd.page-work .page-masthead h1 { font-size: clamp(56px,15vw,88px); line-height: 1; letter-spacing: -.04em; margin: 0 0 24px; }
@@ -373,4 +373,14 @@ body.edition-bd > footer { width: min(88%,1420px); max-width: 1420px; margin-inl
 }
 @media (min-width: 1600px) {
   body.edition-bd.edition-light.page-home > header { inset-inline: calc((100vw - 1420px) / 2); }
+}
+
+/* Keep the selected wordmark at its intrinsic proportions, with room to breathe. */
+body.edition-bd.edition-light .brand img[src*="chao-logo.svg"] {
+  min-width: 0; max-height: none !important;
+  object-position: center; opacity: 1;
+}
+@media (max-width: 380px) {
+  .edition-bd header nav { gap: 9px; }
+  body.edition-bd.edition-light > header { column-gap: 12px; }
 }
